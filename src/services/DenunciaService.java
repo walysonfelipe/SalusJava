@@ -1,4 +1,7 @@
 package services;
+import models.Denuncia;
+import utils.MenuUtil;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner;

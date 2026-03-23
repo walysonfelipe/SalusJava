@@ -1,4 +1,4 @@
-package services;
+package models;
 
 public class Denuncia {
     public String nome, email, telefone, local, descricao;

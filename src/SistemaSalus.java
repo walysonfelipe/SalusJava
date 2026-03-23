@@ -1,7 +1,7 @@
 import java.util.Scanner;
 
 import services.DenunciaService;
-import services.MenuUtil;
+import utils.MenuUtil;
 import services.FuncionarioService;
 
 public class SistemaSalus {
