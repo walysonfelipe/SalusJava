@@ -2,7 +2,7 @@ import java.util.Scanner;
 
 import services.DenunciaService;
 import services.MenuUtil;
-import  services.FuncionarioService;
+import services.FuncionarioService;
 
 public class SistemaSalus {
 
@@ -14,8 +14,10 @@ public class SistemaSalus {
         int op;
         do {
             op = MenuUtil.exibir(sc, "CIDADAO", "Fazer denuncia", "Ver minhas denuncias");
-            if (op == 1) denService.cadastrar(sc);
-            if (op == 2) denService.buscarPorEmail(sc);
+            switch (op) {
+                case 1 -> denService.cadastrar(sc);
+                case 2 -> denService.buscarPorEmail(sc);
+            }
         } while (op != 0);
     }
 
@@ -25,10 +27,12 @@ public class SistemaSalus {
             op = MenuUtil.exibir(sc, "ADMINISTRADOR",
                     "Adicionar funcionario", "Listar funcionarios",
                     "Desativar funcionario", "Ativar funcionario");
-            if (op == 1) funcService.adicionar(sc);
-            if (op == 2) { funcService.listar(); MenuUtil.pausar(sc); }
-            if (op == 3) funcService.alterarStatus(sc, false);
-            if (op == 4) funcService.alterarStatus(sc, true);
+            switch (op) {
+                case 1 -> funcService.adicionar(sc);
+                case 2 -> { funcService.listar(); MenuUtil.pausar(sc); }
+                case 3 -> funcService.alterarStatus(sc, false);
+                case 4 -> funcService.alterarStatus(sc, true);
+            }
         } while (op != 0);
     }
 
@@ -37,8 +41,10 @@ public class SistemaSalus {
         do {
             denService.dashboard();
             op = MenuUtil.exibir(sc, "GESTOR", "Listar denuncias", "Vistoriar denuncia");
-            if (op == 1) { denService.listar(); MenuUtil.pausar(sc); }
-            if (op == 2) denService.vistoriar(sc);
+            switch (op) {
+                case 1 -> { denService.listar(); MenuUtil.pausar(sc); }
+                case 2 -> denService.vistoriar(sc);
+            }
         } while (op != 0);
     }
 
@@ -47,9 +53,11 @@ public class SistemaSalus {
         do {
             op = MenuUtil.exibir(sc, "SISTEMA SALUS - PREFEITURA DE LINS",
                     "Cidadao", "Gestor", "Administrador");
-            if (op == 1) menuCidadao();
-            if (op == 2 && funcService.loginGestor(sc)) menuGestor();
-            if (op == 3 && funcService.loginAdmin(sc)) menuAdmin();
+            switch (op) {
+                case 1 -> menuCidadao();
+                case 2 -> { if (funcService.loginGestor(sc)) menuGestor(); }
+                case 3 -> { if (funcService.loginAdmin(sc)) menuAdmin(); }
+            }
         } while (op != 0);
         System.out.println("Ate logo!");
     }
