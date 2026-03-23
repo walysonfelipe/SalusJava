@@ -91,22 +91,22 @@ public class DenunciaService {
         denuncias[indiceDenuncia].dataHoraVistoria = LocalDateTime.now().format(formatoDataHora);
 
         System.out.print("Procedente? (1-Sim / 2-Nao): ");
-        denuncias[indiceDenuncia].status = (MenuUtil.lerInt(scanner) == 1) ? "VISTORIADO" : "FALSA";
+        denuncias[indiceDenuncia].status = (MenuUtil.lerInt(scanner) == 1) ? "VERIDICO" : "FALSA";
         System.out.println("Vistoria registrada!");
         MenuUtil.pausar(scanner);
     }
 
     public void dashboard() {
-        int pendentes = 0, vistoriadas = 0, falsas = 0;
+        int pendentes = 0, veridico = 0, falsas = 0;
 
         for (int i = 0; i < total; i++) {
             if (denuncias[i].status.equals("PENDENTE"))   pendentes++;
-            if (denuncias[i].status.equals("VISTORIADO")) vistoriadas++;
+            if (denuncias[i].status.equals("VERIDICO"))  veridico++;
             if (denuncias[i].status.equals("FALSA"))      falsas++;
         }
 
         System.out.println("\n--- DASHBOARD ---");
         System.out.println("Total: " + total + " | Pendentes: " + pendentes
-                + " | Vistoriadas: " + vistoriadas + " | Falsas: " + falsas);
+                + " | Vistorias Veridicas: " + veridico + " | Vistorias Falsas: " + falsas);
     }
 }
