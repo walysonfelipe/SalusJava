@@ -6,17 +6,17 @@ import services.FuncionarioService;
 
 public class SistemaSalus {
 
-    Scanner sc = new Scanner(System.in);
+    Scanner scanner = new Scanner(System.in);
     DenunciaService denService = new DenunciaService();
     FuncionarioService funcService = new FuncionarioService();
 
     void menuCidadao() {
         int op;
         do {
-            op = MenuUtil.exibir(sc, "CIDADAO", "Fazer denuncia", "Ver minhas denuncias");
+            op = MenuUtil.exibir(scanner, "CIDADAO", "Fazer denuncia", "Ver minhas denuncias");
             switch (op) {
-                case 1 -> denService.cadastrar(sc);
-                case 2 -> denService.buscarPorEmail(sc);
+                case 1 -> denService.cadastrar(scanner);
+                case 2 -> denService.buscarPorEmail(scanner);
             }
         } while (op != 0);
     }
@@ -24,14 +24,14 @@ public class SistemaSalus {
     void menuAdmin() {
         int op;
         do {
-            op = MenuUtil.exibir(sc, "ADMINISTRADOR",
+            op = MenuUtil.exibir(scanner, "ADMINISTRADOR",
                     "Adicionar funcionario", "Listar funcionarios",
                     "Desativar funcionario", "Ativar funcionario");
             switch (op) {
-                case 1 -> funcService.adicionar(sc);
-                case 2 -> { funcService.listar(); MenuUtil.pausar(sc); }
-                case 3 -> funcService.alterarStatus(sc, false);
-                case 4 -> funcService.alterarStatus(sc, true);
+                case 1 -> funcService.adicionar(scanner);
+                case 2 -> { funcService.listar(); MenuUtil.pausar(scanner); }
+                case 3 -> funcService.alterarStatus(scanner, false);
+                case 4 -> funcService.alterarStatus(scanner, true);
             }
         } while (op != 0);
     }
@@ -40,10 +40,10 @@ public class SistemaSalus {
         int op;
         do {
             denService.dashboard();
-            op = MenuUtil.exibir(sc, "GESTOR", "Listar denuncias", "Vistoriar denuncia");
+            op = MenuUtil.exibir(scanner, "GESTOR", "Listar denuncias", "Vistoriar denuncia");
             switch (op) {
-                case 1 -> { denService.listar(); MenuUtil.pausar(sc); }
-                case 2 -> denService.vistoriar(sc);
+                case 1 -> { denService.listar(); MenuUtil.pausar(scanner); }
+                case 2 -> denService.vistoriar(scanner);
             }
         } while (op != 0);
     }
@@ -51,12 +51,12 @@ public class SistemaSalus {
     void run() {
         int op;
         do {
-            op = MenuUtil.exibir(sc, "SISTEMA SALUS - PREFEITURA DE LINS",
+            op = MenuUtil.exibir(scanner, "SISTEMA SALUS - PREFEITURA DE LINS",
                     "Cidadao", "Gestor", "Administrador");
             switch (op) {
                 case 1 -> menuCidadao();
-                case 2 -> { if (funcService.loginGestor(sc)) menuGestor(); }
-                case 3 -> { if (funcService.loginAdmin(sc)) menuAdmin(); }
+                case 2 -> { if (funcService.loginGestor(scanner)) menuGestor(); }
+                case 3 -> { if (funcService.loginAdmin(scanner)) menuAdmin(); }
             }
         } while (op != 0);
         System.out.println("Ate logo!");
