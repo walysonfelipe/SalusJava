@@ -1,4 +1,4 @@
-package v2;
+package v2.telas;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -7,6 +7,9 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 
+/**
+ * Tela de créditos com animação estilo Star Wars.
+ */
 public class TelaCreditos extends JPanel {
 
     private static final String REPO_URL = "https://github.com/walysonfelipe/SalusJava";
@@ -178,13 +181,9 @@ public class TelaCreditos extends JPanel {
         private static final Color LILAS   = new Color(180, 180, 220);
         private static final Color CINZA   = new Color(100, 100, 140);
 
-        // Distância focal (perspectiva): maior = menos distorção
         private static final float PERSP     = 520f;
-        // Espaçamento entre linhas no "mundo"
         private static final float LINE_H    = 58f;
-        // Velocidade de scroll
         private static final float SPEED     = 0.5f;
-        // Tamanho base da fonte em scale=1.0 (fundo da tela)
         private static final int   BASE_FONT = 40;
 
         private final String[] linhas;
@@ -199,9 +198,8 @@ public class TelaCreditos extends JPanel {
         void iniciar() {
             parar();
             scrollPos = 0f;
-            timer = new Timer(16, e -> {   // ~60 fps
+            timer = new Timer(16, e -> {
                 scrollPos += SPEED;
-                // Reinicia quando o texto inteiro já passou do topo
                 if (scrollPos > linhas.length * LINE_H + PERSP * 3f)
                     scrollPos = 0f;
                 repaint();
@@ -224,28 +222,24 @@ public class TelaCreditos extends JPanel {
 
             int   cx     = getWidth()  / 2;
             int   panH   = getHeight();
-            // Ponto de fuga: 18% do topo
             int   horizY = (int)(panH * 0.18f);
 
             AffineTransform base = g2.getTransform();
 
-            // Pre-calcula posição e escala de cada linha
             float[] scales   = new float[linhas.length];
             float[] screenYs = new float[linhas.length];
             for (int i = 0; i < linhas.length; i++) {
                 float pos = scrollPos - i * LINE_H;
-                // Permite pos negativo para preparar a entrada
                 if (pos < -PERSP + 100f) continue;
-                
+
                 float sc = PERSP / (PERSP + pos);
-                if (sc < 0.05f) continue; // Muito pequeno/longe, já passou do topo
-                
+                if (sc < 0.05f) continue;
+
                 float sy = horizY + (panH - horizY) * sc;
                 scales[i]   = sc;
                 screenYs[i] = sy;
             }
 
-            // Desenha todas as linhas visíveis (do topo para baixo)
             for (int i = 0; i < linhas.length; i++) {
                 if (scales[i] == 0f || linhas[i].isBlank()) continue;
                 float scale   = scales[i];
@@ -253,15 +247,10 @@ public class TelaCreditos extends JPanel {
 
                 float alpha = 1f;
 
-                // Sumir um a um bem simples ao chegar no teto.
-                // A justificação de usar 0.5f a 0.35f é que, devido à perspectiva 3D,
-                // quando a escala fica menor que 0.35, a velocidade visual na tela cai drasticamente.
-                // Antes, tentar sumir até 0.1 fazia o texto demorar mais de 2 minutos pra sumir, parecendo travado.
                 if (scale < 0.5f) {
                     alpha = (scale - 0.35f) / (0.5f - 0.35f);
                 }
-                
-                // Aparecer um a um bem simples na base (scale começando de 1.0 descendo até 0.8)
+
                 if (scale > 0.8f) {
                     alpha = (1.0f - scale) / (1.0f - 0.8f);
                 }
