@@ -53,13 +53,13 @@ public class SistemaSalus {
         do {
             op = MenuUtil.exibir(scanner, "SISTEMA SALUS - PREFEITURA DE LINS",
                     "Cidadao", "Gestor", "Administrador");
-
             switch (op) {
                 case 1 -> menuCidadao();
                 case 2 -> { if (funcService.loginGestor(scanner)) menuGestor(); }
                 case 3 -> { if (funcService.loginAdmin(scanner)) menuAdmin(); }
             }
         } while (op != 0);
+
         System.out.println("Ate logo!");
     }
 
@@ -67,4 +67,5 @@ public class SistemaSalus {
         SistemaSalus sistema = new SistemaSalus();
         sistema.run();
     }
+
 }
