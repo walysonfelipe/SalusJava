@@ -53,10 +53,29 @@ projetoDengueIntegrador_ADS/
 │   │   ├── logo.png                   # Logo da aplicação
 │   │   └── qrcode.png                 # QR Code do repositório
 │   └── v2/
-│       ├── SalusSystem.java           # Aplicação GUI principal (V2)
+│       ├── SalusSystem.java           # Ponto de entrada e controlador de navegação (V2)
 │       ├── DenunciaServiceV2.java     # Serviço de denúncias adaptado para GUI
 │       ├── FuncionarioServiceV2.java  # Serviço de funcionários adaptado para GUI
-│       └── TelaCreditos.java          # Tela de créditos com efeito Star Wars
+│       ├── ui/                        # Componentes visuais reutilizáveis
+│       │   ├── SalusTheme.java        # Constantes de tema (cores, fontes, dimensões)
+│       │   └── UIFactory.java         # Fábrica de componentes Swing padronizados
+│       └── telas/                     # Telas individuais da aplicação
+│           ├── Navegador.java         # Interface de callback para navegação entre telas
+│           ├── TelaCarregamento.java   # Splash screen com barra de progresso
+│           ├── TelaMenu.java          # Menu principal
+│           ├── TelaCidadao.java       # Painel do cidadão
+│           ├── TelaFazerDenuncia.java # Formulário de nova denúncia
+│           ├── TelaBuscarDenuncia.java# Consulta de denúncias por e-mail
+│           ├── TelaLoginGestor.java   # Login do gestor
+│           ├── TelaGestor.java        # Painel do gestor
+│           ├── TelaListarDenuncias.java # Listagem de denúncias (gestor)
+│           ├── TelaVistoriar.java     # Vistoria e classificação de denúncias
+│           ├── TelaAlterarStatus.java # Alteração de status de denúncias
+│           ├── TelaLoginAdmin.java    # Login do administrador
+│           ├── TelaAdmin.java         # Painel do administrador
+│           ├── TelaAddFuncionario.java# Cadastro de funcionários
+│           ├── TelaListarFuncionarios.java # Listagem de funcionários
+│           └── TelaCreditos.java      # Tela de créditos com efeito Star Wars
 ├── ARQUITETURA.md                     # Documentação de arquitetura
 ├── integrantesdogrupo.txt             # Integrantes do grupo
 └── projetoDengueIntegrador_ADS.iml    # Arquivo de projeto IntelliJ IDEA
@@ -79,15 +98,17 @@ projetoDengueIntegrador_ADS/
 
 ## Arquitetura
 
-O projeto segue a separação em três camadas:
+O projeto segue a separação em camadas:
 
 ```
-Models (Dados)  →  Services (Regras de Negócio)  →  UI (Interface)
+Models (Dados)  →  Services (Regras de Negócio)  →  Telas (Interface)  ←  UI (Tema & Componentes)
 ```
 
 - **Models:** Classes POJO que representam os dados (`Denuncia`, `Funcionario`).
 - **Services:** Contém toda a lógica de negócio e validações.
-- **UI:** V1 via terminal com `Scanner` / V2 via `JFrame` com Swing e `CardLayout` para navegação entre telas.
+- **UI (`v2/ui/`):** Camada de design system — `SalusTheme` centraliza cores, fontes e dimensões; `UIFactory` fornece métodos-fábrica para criar componentes Swing padronizados (botões, painéis, labels, campos de texto, etc.).
+- **Telas (`v2/telas/`):** Cada classe representa uma tela independente da aplicação. A interface `Navegador` define o contrato de navegação entre telas via callback.
+- **SalusSystem:** Atua como controlador central, instanciando os serviços e gerenciando a troca de telas via `CardLayout`.
 
 Os serviços foram refatorados da V1 para a V2, eliminando a dependência do `Scanner` e retornando dados em vez de imprimir no terminal.
 
@@ -115,7 +136,7 @@ java -cp src SistemaSalus
 
 **V2 - GUI:**
 ```bash
-javac -cp src src/v2/SalusSystem.java src/v2/*.java src/models/*.java
+javac -cp src src/v2/*.java src/v2/ui/*.java src/v2/telas/*.java src/models/*.java src/services/*.java
 java -cp src v2.SalusSystem
 ```
 
