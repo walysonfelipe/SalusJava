@@ -1,10 +1,13 @@
 package v2.telas;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 import java.awt.*;
 
 import models.Denuncia;
-import v2.DenunciaServiceV2;
+import v2.services.DenunciaServiceV2;
 
 import static v2.ui.UIFactory.*;
 import static v2.ui.SalusTheme.*;
@@ -17,8 +20,9 @@ public class TelaBuscarDenuncia extends JPanel {
     private final Navegador navegador;
     private final DenunciaServiceV2 denService;
 
-    private JTextField campoEmail;
-    private JTextArea  areaResultado;
+    private JTextField         campoEmail;
+    private DefaultTableModel  modeloTabela;
+    private JScrollPane        scrollRes;
 
     public TelaBuscarDenuncia(Navegador navegador, DenunciaServiceV2 denService) {
         this.navegador = navegador;
@@ -36,15 +40,34 @@ public class TelaBuscarDenuncia extends JPanel {
         btnBuscar.setMaximumSize(new Dimension(200, 45));
         btnBuscar.setPreferredSize(new Dimension(200, 45));
 
-        areaResultado = new JTextArea(10, 40);
-        areaResultado.setEditable(false);
-        areaResultado.setFont(new Font("Monospaced", Font.PLAIN, 13));
-        areaResultado.setBackground(COR_AREA);
-        areaResultado.setForeground(Color.WHITE);
-        areaResultado.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        JScrollPane scrollRes = new JScrollPane(areaResultado);
-        scrollRes.setMaximumSize(new Dimension(600, 250));
-        scrollRes.setPreferredSize(new Dimension(600, 250));
+        String[] colunas = {"#", "Status", "Local", "Descrição", "Data/Hora", "Observação"};
+        modeloTabela = new DefaultTableModel(colunas, 0) {
+            @Override public boolean isCellEditable(int row, int col) { return false; }
+        };
+        JTable tabela = new JTable(modeloTabela);
+        tabela.setBackground(COR_AREA);
+        tabela.setForeground(Color.WHITE);
+        tabela.setFont(new Font("Monospaced", Font.PLAIN, 13));
+        tabela.setRowHeight(28);
+        tabela.setGridColor(COR_BORDA);
+        tabela.setSelectionBackground(COR_BOTAO);
+        tabela.setSelectionForeground(Color.WHITE);
+
+        DefaultTableCellRenderer centralizador = new DefaultTableCellRenderer();
+        centralizador.setHorizontalAlignment(SwingConstants.CENTER);
+        tabela.getColumnModel().getColumn(0).setCellRenderer(centralizador);
+        tabela.getColumnModel().getColumn(1).setCellRenderer(centralizador);
+        tabela.getColumnModel().getColumn(0).setPreferredWidth(30);
+        tabela.getColumnModel().getColumn(1).setPreferredWidth(80);
+
+        JTableHeader header = tabela.getTableHeader();
+        header.setBackground(new Color(15, 15, 50));
+        header.setForeground(COR_BOTAO);
+        header.setFont(new Font("Monospaced", Font.BOLD, 13));
+
+        scrollRes = new JScrollPane(tabela);
+        scrollRes.setMaximumSize(new Dimension(700, 250));
+        scrollRes.setPreferredSize(new Dimension(700, 250));
         scrollRes.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JButton btnVoltar = botaoVoltar();
@@ -56,23 +79,17 @@ public class TelaBuscarDenuncia extends JPanel {
                 return;
             }
             Denuncia[] resultado = denService.buscarPorEmail(email);
+            modeloTabela.setRowCount(0);
             if (resultado.length == 0) {
-                areaResultado.setText("Nenhuma denúncia encontrada para este e-mail.");
+                JOptionPane.showMessageDialog(this, "Nenhuma denúncia encontrada para este e-mail.", "Resultado", JOptionPane.INFORMATION_MESSAGE);
             } else {
-                StringBuilder sb = new StringBuilder();
                 for (int i = 0; i < resultado.length; i++) {
                     Denuncia d = resultado[i];
-                    sb.append("─────────────────────────────────────────────\n");
-                    sb.append(String.format("#%d  |  Status: %s  |  %s\n", i + 1, d.status, d.dataHora));
-                    sb.append(String.format("  Local: %s\n", d.local));
-                    sb.append(String.format("  Descrição: %s\n", d.descricao));
-                    if (d.observacao != null && !d.observacao.isEmpty()) {
-                        sb.append(String.format("  Observação: %s\n", d.observacao));
-                        sb.append(String.format("  Vistoria em: %s\n", d.dataHoraVistoria));
-                    }
+                    modeloTabela.addRow(new Object[]{
+                        i + 1, d.status, d.local, d.descricao, d.dataHora,
+                        (d.observacao != null && !d.observacao.isEmpty()) ? d.observacao : "—"
+                    });
                 }
-                areaResultado.setText(sb.toString());
-                areaResultado.setCaretPosition(0);
             }
         });
         btnVoltar.addActionListener(e -> navegador.irPara("cidadao"));
@@ -89,6 +106,6 @@ public class TelaBuscarDenuncia extends JPanel {
 
     public void limparCampos() {
         campoEmail.setText("");
-        areaResultado.setText("");
+        modeloTabela.setRowCount(0);
     }
 }

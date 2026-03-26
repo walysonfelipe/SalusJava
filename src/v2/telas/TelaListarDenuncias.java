@@ -1,10 +1,12 @@
 package v2.telas;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
 import java.awt.*;
 
 import models.Denuncia;
-import v2.DenunciaServiceV2;
+import v2.services.DenunciaServiceV2;
 
 import static v2.ui.UIFactory.*;
 import static v2.ui.SalusTheme.*;
@@ -36,32 +38,40 @@ public class TelaListarDenuncias extends JPanel {
         topo.add(titulo("LISTA DE DENÚNCIAS"));
 
         Denuncia[] lista = denService.listar();
-        JTextArea area = new JTextArea();
-        area.setEditable(false);
-        area.setFont(new Font("Monospaced", Font.PLAIN, 13));
-        area.setBackground(COR_AREA);
-        area.setForeground(Color.WHITE);
-        area.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
 
-        if (lista.length == 0) {
-            area.setText("  Nenhuma denúncia registrada.");
-        } else {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < lista.length; i++) {
-                Denuncia d = lista[i];
-                sb.append("══════════════════════════════════════════════════════\n");
-                sb.append(String.format("[%d]  %s  →  %s  |  %s\n", i + 1, d.descricao, d.status, d.dataHora));
-                sb.append(String.format("     Nome: %s | E-mail: %s | Tel: %s\n", d.nome, d.email, d.telefone));
-                sb.append(String.format("     Local: %s\n", d.local));
-                if (d.observacao != null && !d.observacao.isEmpty()) {
-                    sb.append(String.format("     Vistoria: %s | Obs: %s\n", d.dataHoraVistoria, d.observacao));
-                }
-            }
-            area.setText(sb.toString());
-            area.setCaretPosition(0);
+        String[] colunas = {"#", "Descrição", "Status", "Nome", "Local", "Data/Hora"};
+        Object[][] dados = new Object[lista.length][6];
+        for (int i = 0; i < lista.length; i++) {
+            Denuncia d = lista[i];
+            dados[i] = new Object[]{i + 1, d.descricao, d.status, d.nome, d.local, d.dataHora};
         }
 
-        JScrollPane scroll = new JScrollPane(area);
+        JTable tabela = new JTable(dados, colunas) {
+            @Override public boolean isCellEditable(int row, int col) { return false; }
+        };
+        tabela.setBackground(COR_AREA);
+        tabela.setForeground(Color.WHITE);
+        tabela.setFont(new Font("Monospaced", Font.PLAIN, 13));
+        tabela.setRowHeight(28);
+        tabela.setGridColor(COR_BORDA);
+        tabela.setSelectionBackground(COR_BOTAO);
+        tabela.setSelectionForeground(Color.WHITE);
+        tabela.setAutoCreateRowSorter(true);
+
+        DefaultTableCellRenderer centralizador = new DefaultTableCellRenderer();
+        centralizador.setHorizontalAlignment(SwingConstants.CENTER);
+        tabela.getColumnModel().getColumn(0).setCellRenderer(centralizador);
+        tabela.getColumnModel().getColumn(2).setCellRenderer(centralizador);
+        tabela.getColumnModel().getColumn(5).setCellRenderer(centralizador);
+        tabela.getColumnModel().getColumn(0).setPreferredWidth(30);
+        tabela.getColumnModel().getColumn(2).setPreferredWidth(80);
+
+        JTableHeader header = tabela.getTableHeader();
+        header.setBackground(new Color(15, 15, 50));
+        header.setForeground(COR_BOTAO);
+        header.setFont(new Font("Monospaced", Font.BOLD, 13));
+
+        JScrollPane scroll = new JScrollPane(tabela);
         scroll.setBackground(COR_FUNDO);
         scroll.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 20));
 

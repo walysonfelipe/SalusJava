@@ -4,6 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+import v2.services.DenunciaServiceV2;
+import v2.services.FuncionarioServiceV2;
 import v2.telas.*;
 
 /**
@@ -16,7 +18,7 @@ public class SalusSystem extends JFrame implements Navegador {
     private final JPanel mainPanel = new JPanel(cardLayout);
 
     // ===== Services =====
-    private final DenunciaServiceV2    denService  = new DenunciaServiceV2();
+    private final DenunciaServiceV2 denService  = new DenunciaServiceV2();
     private final FuncionarioServiceV2 funcService = new FuncionarioServiceV2();
 
     // ===== Telas dinâmicas (reconstruídas a cada navegação) =====

@@ -54,8 +54,9 @@ projetoDengueIntegrador_ADS/
 │   │   └── qrcode.png                 # QR Code do repositório
 │   └── v2/
 │       ├── SalusSystem.java           # Ponto de entrada e controlador de navegação (V2)
-│       ├── DenunciaServiceV2.java     # Serviço de denúncias adaptado para GUI
-│       ├── FuncionarioServiceV2.java  # Serviço de funcionários adaptado para GUI
+│       ├── services/                        # Componentes visuais reutilizáveis
+│       │   ├── DenunciaServiceV2.java     # Serviço de denúncias adaptado para GUI
+│       │   └── FuncionarioServiceV2.java  # Serviço de funcionários adaptado para GUI
 │       ├── ui/                        # Componentes visuais reutilizáveis
 │       │   ├── SalusTheme.java        # Constantes de tema (cores, fontes, dimensões)
 │       │   └── UIFactory.java         # Fábrica de componentes Swing padronizados

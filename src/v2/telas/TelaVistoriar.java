@@ -5,7 +5,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 import models.Denuncia;
-import v2.DenunciaServiceV2;
+import v2.services.DenunciaServiceV2;
 
 import static v2.ui.UIFactory.*;
 import static v2.ui.SalusTheme.*;

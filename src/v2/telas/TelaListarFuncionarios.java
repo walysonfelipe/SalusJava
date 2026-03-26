@@ -1,10 +1,12 @@
 package v2.telas;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
 import java.awt.*;
 
 import models.Funcionario;
-import v2.FuncionarioServiceV2;
+import v2.services.FuncionarioServiceV2;
 
 import static v2.ui.UIFactory.*;
 import static v2.ui.SalusTheme.*;
@@ -36,30 +38,39 @@ public class TelaListarFuncionarios extends JPanel {
         topo.add(titulo("FUNCIONÁRIOS CADASTRADOS"));
 
         Funcionario[] lista = funcService.listar();
-        JTextArea area = new JTextArea();
-        area.setEditable(false);
-        area.setFont(new Font("Monospaced", Font.PLAIN, 13));
-        area.setBackground(COR_AREA);
-        area.setForeground(Color.WHITE);
-        area.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
 
-        if (lista.length == 0) {
-            area.setText("  Nenhum funcionário cadastrado.");
-        } else {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < lista.length; i++) {
-                Funcionario f = lista[i];
-                sb.append("══════════════════════════════════════════════════════\n");
-                sb.append(String.format("[%d]  %s  |  Cargo: %s  |  %s\n",
-                    i + 1, f.nome, f.cargo, f.ativo ? "✔ ATIVO" : "✘ INATIVO"));
-                sb.append(String.format("     CPF: %s | E-mail: %s | Tel: %s\n", f.cpf, f.email, f.telefone));
-                sb.append(String.format("     Setor: %s | Cadastro: %s\n", f.setor, f.dataCadastro));
-            }
-            area.setText(sb.toString());
-            area.setCaretPosition(0);
+        String[] colunas = {"#", "Nome", "Cargo", "Setor", "E-mail", "Status"};
+        Object[][] dados = new Object[lista.length][6];
+        for (int i = 0; i < lista.length; i++) {
+            Funcionario f = lista[i];
+            dados[i] = new Object[]{i + 1, f.nome, f.cargo, f.setor, f.email, f.ativo ? "ATIVO" : "INATIVO"};
         }
 
-        JScrollPane scroll = new JScrollPane(area);
+        JTable tabela = new JTable(dados, colunas) {
+            @Override public boolean isCellEditable(int row, int col) { return false; }
+        };
+        tabela.setBackground(COR_AREA);
+        tabela.setForeground(Color.WHITE);
+        tabela.setFont(new Font("Monospaced", Font.PLAIN, 13));
+        tabela.setRowHeight(28);
+        tabela.setGridColor(COR_BORDA);
+        tabela.setSelectionBackground(COR_BOTAO);
+        tabela.setSelectionForeground(Color.WHITE);
+        tabela.setAutoCreateRowSorter(true);
+
+        DefaultTableCellRenderer centralizador = new DefaultTableCellRenderer();
+        centralizador.setHorizontalAlignment(SwingConstants.CENTER);
+        tabela.getColumnModel().getColumn(0).setCellRenderer(centralizador);
+        tabela.getColumnModel().getColumn(5).setCellRenderer(centralizador);
+        tabela.getColumnModel().getColumn(0).setPreferredWidth(30);
+        tabela.getColumnModel().getColumn(5).setPreferredWidth(70);
+
+        JTableHeader header = tabela.getTableHeader();
+        header.setBackground(new Color(15, 15, 50));
+        header.setForeground(COR_BOTAO);
+        header.setFont(new Font("Monospaced", Font.BOLD, 13));
+
+        JScrollPane scroll = new JScrollPane(tabela);
         scroll.setBackground(COR_FUNDO);
         scroll.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 20));
 

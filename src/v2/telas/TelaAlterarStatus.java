@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 
 import models.Funcionario;
-import v2.FuncionarioServiceV2;
+import v2.services.FuncionarioServiceV2;
 
 import static v2.ui.UIFactory.*;
 import static v2.ui.SalusTheme.*;
