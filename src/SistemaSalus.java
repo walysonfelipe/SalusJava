@@ -3,13 +3,13 @@ import java.util.Scanner;
 
 public class SistemaSalus {
 
-    private final Scanner scanner = new Scanner(System.in);
-    private final CidadaoService cidadaoService = new CidadaoService();
-    private final AdminService adminService = new AdminService();
-    private final FuncionarioService funcService = new FuncionarioService();
-    private final DenunciaService denService = new DenunciaService();
-    private final VistoriaService vistoriaService = new VistoriaService();
-    private final LogService logService = new LogService();
+    private  Scanner scanner = new Scanner(System.in);
+    private  CidadaoService cidadaoService = new CidadaoService();
+    private  AdminService adminService = new AdminService();
+    private  FuncionarioService funcService = new FuncionarioService();
+    private  DenunciaService denService = new DenunciaService();
+    private  VistoriaService vistoriaService = new VistoriaService();
+    private  LogService logService = new LogService();
 
     private void menuCidadao() {
     }
