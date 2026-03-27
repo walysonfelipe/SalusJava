@@ -1,9 +1,4 @@
-import models.Admin;
-import models.Cidadao;
-import models.Funcionario;
 import services.*;
-import utils.MenuUtil;
-
 import java.util.Scanner;
 
 public class SistemaSalus {
@@ -16,16 +11,16 @@ public class SistemaSalus {
     private final VistoriaService vistoriaService = new VistoriaService();
     private final LogService logService = new LogService();
 
-    private void menuCidadao(Cidadao cidadao) {
+    private void menuCidadao() {
     }
 
     private void menuPreCidadao() {
     }
 
-    private void menuAdmin(Admin admin) {
+    private void menuAdmin() {
     }
 
-    private void menuGestor(Funcionario gestor) {
+    private void menuGestor() {
     }
 
     private void run() {

@@ -4,15 +4,14 @@ import models.Cidadao;
 import models.Denuncia;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class DenunciaService {
     private List<Denuncia> denuncias = new ArrayList<>();
 
-    public void cadastrar(Scanner scanner, Cidadao cidadao) {
+    public void cadastrar() {
     }
 
-    public void buscarPorCidadao(Cidadao cidadao, Scanner scanner) {
+    public void buscarPorCidadao() {
     }
 
     public void listar() {
@@ -21,7 +20,7 @@ public class DenunciaService {
     public void listarPendentes() {
     }
 
-    public Denuncia buscarPorId(int id) {
+    public Denuncia buscarPorId() {
         return null;
     }
 
