@@ -1,112 +1,103 @@
 package services;
 
+import models.Cidadao;
 import models.Denuncia;
 import utils.MenuUtil;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class DenunciaService {
+    private final List<Denuncia> denuncias = new ArrayList<>();
+    private int proximoId = 1;
+    private final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
-    Denuncia[] denuncias = new Denuncia[100];
-    int total = 0;
-    DateTimeFormatter formatoDataHora = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-
-    public void cadastrar(Scanner scanner) {
-        if (total >= 100) {
-            System.out.println("Limite atingido!");
-            return;
-        }
-
-        Denuncia novaDenuncia = new Denuncia();
-        System.out.println("\n--- NOVA DENUNCIA ---");
-        System.out.print("Nome: ");       novaDenuncia.nome = scanner.nextLine();
-        System.out.print("E-mail: ");     novaDenuncia.email = scanner.nextLine();
-        System.out.print("Telefone: ");   novaDenuncia.telefone = scanner.nextLine();
-        System.out.print("Local: ");      novaDenuncia.local = scanner.nextLine();
-        System.out.print("Descricao: ");  novaDenuncia.descricao = scanner.nextLine();
-        novaDenuncia.dataHora = LocalDateTime.now().format(formatoDataHora);
-
-        denuncias[total] = novaDenuncia;
-        total++;
-        System.out.println("Denuncia registrada!");
+    private String gerarProtocolo() {
+        int ano = LocalDateTime.now().getYear();
+        return String.format("SALUS-%d-%04d", ano, proximoId);
     }
 
-    public void buscarPorEmail(Scanner scanner) {
-        if (total == 0) {
-            System.out.println("Nenhuma denuncia.");
-            return;
-        }
+    public void cadastrar(Scanner scanner, Cidadao cidadao) {
+        Denuncia d = new Denuncia();
+        d.setIdDenuncia(proximoId);
+        d.setProtocolo(gerarProtocolo());
+        d.setCidadao(cidadao);
+        proximoId++;
 
-        System.out.print("\nSeu e-mail: ");
-        String emailBusca = scanner.nextLine();
+        System.out.println("\n--- NOVA DENUNCIA ---");
+        System.out.print("Endereco: ");
+        d.setEnderecoDenuncia(scanner.nextLine());
+        System.out.print("Descricao: ");
+        d.setDescricaoDenuncia(scanner.nextLine());
+        System.out.print("Tipo de acao fiscal (NOTIFICACAO/AUTUACAO/VISTORIA): ");
+        d.setTipoAcaoFiscal(scanner.nextLine());
+        d.setDataEnvio(LocalDateTime.now().format(fmt));
+
+        denuncias.add(d);
+        System.out.println("Denuncia registrada com sucesso!");
+        System.out.println("Protocolo: " + d.getProtocolo());
+    }
+
+    public void buscarPorCidadao(Cidadao cidadao, Scanner scanner) {
+        System.out.println("\n--- MINHAS DENUNCIAS ---");
         boolean encontrou = false;
-
-        for (int i = 0; i < total; i++) {
-            if (denuncias[i].email.equals(emailBusca)) {
+        for (Denuncia d : denuncias) {
+            if (d.getCidadao().getIdCidadao() == cidadao.getIdCidadao()) {
                 encontrou = true;
-                System.out.println("\n#" + (i + 1) + " | " + denuncias[i].status
-                        + " | " + denuncias[i].dataHora);
-                System.out.println("  Local: " + denuncias[i].local);
-                System.out.println("  Descricao: " + denuncias[i].descricao);
+                System.out.printf("Protocolo: %-18s | Status: %-10s | Data: %s%n",
+                    d.getProtocolo(), d.getStatusDenuncia(), d.getDataEnvio());
+                System.out.println("  Endereco : " + d.getEnderecoDenuncia());
+                System.out.println("  Descricao: " + d.getDescricaoDenuncia());
+                System.out.println("  Tipo Acao: " + d.getTipoAcaoFiscal());
+                System.out.println();
             }
         }
-
-        if (!encontrou) System.out.println("Nenhuma denuncia para esse e-mail.");
+        if (!encontrou) System.out.println("Nenhuma denuncia encontrada.");
         MenuUtil.pausar(scanner);
     }
 
     public void listar() {
-        if (total == 0) {
-            System.out.println("Nenhuma denuncia.");
+        if (denuncias.isEmpty()) {
+            System.out.println("Nenhuma denuncia registrada.");
             return;
         }
-
-        for (int i = 0; i < total; i++) {
-            System.out.println("[" + (i + 1) + "] " + denuncias[i].descricao
-                    + " (" + denuncias[i].status + ")");
+        for (Denuncia d : denuncias) {
+            System.out.printf("[%d] %s | %-10s | %s%n",
+                d.getIdDenuncia(), d.getProtocolo(),
+                d.getStatusDenuncia(), d.getDescricaoDenuncia());
         }
     }
 
-    public void vistoriar(Scanner scanner) {
-        if (total == 0) {
-            System.out.println("Nenhuma denuncia.");
-            return;
+    public void listarPendentes() {
+        System.out.println("\n--- DENUNCIAS PENDENTES ---");
+        boolean encontrou = false;
+        for (Denuncia d : denuncias) {
+            if (d.getStatusDenuncia().equals("PENDENTE")) {
+                encontrou = true;
+                System.out.printf("[%d] %s | %s | %s%n",
+                    d.getIdDenuncia(), d.getProtocolo(),
+                    d.getEnderecoDenuncia(), d.getCidadao().getNomeCidadao());
+            }
         }
+        if (!encontrou) System.out.println("Nenhuma denuncia pendente.");
+    }
 
-        listar();
-        System.out.print("Numero da denuncia: ");
-        int indiceDenuncia = MenuUtil.lerInt(scanner) - 1;
-
-        if (indiceDenuncia < 0 || indiceDenuncia >= total) {
-            System.out.println("Invalida!");
-            return;
+    public Denuncia buscarPorId(int id) {
+        for (Denuncia d : denuncias) {
+            if (d.getIdDenuncia() == id) return d;
         }
-
-        System.out.println("Descricao: " + denuncias[indiceDenuncia].descricao);
-        System.out.println("Local: " + denuncias[indiceDenuncia].local);
-        System.out.print("Observacao: ");
-        denuncias[indiceDenuncia].observacao = scanner.nextLine();
-        denuncias[indiceDenuncia].dataHoraVistoria = LocalDateTime.now().format(formatoDataHora);
-
-        System.out.print("Procedente? (1-Sim / 2-Nao): ");
-        denuncias[indiceDenuncia].status = (MenuUtil.lerInt(scanner) == 1) ? "VERIDICO" : "FALSA";
-        System.out.println("Vistoria registrada!");
-        MenuUtil.pausar(scanner);
+        return null;
     }
 
     public void dashboard() {
-        int pendentes = 0, veridico = 0, falsas = 0;
-
-        for (int i = 0; i < total; i++) {
-            if (denuncias[i].status.equals("PENDENTE"))   pendentes++;
-            if (denuncias[i].status.equals("VERIDICO"))  veridico++;
-            if (denuncias[i].status.equals("FALSA"))      falsas++;
-        }
-
+        long pendentes = denuncias.stream().filter(d -> d.getStatusDenuncia().equals("PENDENTE")).count();
+        long veridico  = denuncias.stream().filter(d -> d.getStatusDenuncia().equals("VERIDICO")).count();
+        long falsas    = denuncias.stream().filter(d -> d.getStatusDenuncia().equals("FALSA")).count();
         System.out.println("\n--- DASHBOARD ---");
-        System.out.println("Total: " + total + " | Pendentes: " + pendentes
-                + " | Vistorias Veridicas: " + veridico + " | Vistorias Falsas: " + falsas);
+        System.out.printf("Total: %d | Pendentes: %d | Verdadeiras: %d | Falsas: %d%n",
+            denuncias.size(), pendentes, veridico, falsas);
     }
 }

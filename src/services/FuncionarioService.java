@@ -5,96 +5,86 @@ import utils.MenuUtil;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class FuncionarioService {
-
-    Funcionario[] funcionarios = new Funcionario[200];
-    int total = 0;
-    DateTimeFormatter formatoDataHora = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+    private final List<Funcionario> funcionarios = new ArrayList<>();
+    private int proximoId = 1;
+    private final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     public void adicionar(Scanner scanner) {
-        if (total >= 200) {
-            System.out.println("Limite atingido!");
-            return;
-        }
-
-        Funcionario novoFuncionario = new Funcionario();
+        Funcionario f = new Funcionario();
+        f.setIdFuncionario(String.valueOf(proximoId++));
         System.out.println("\n--- NOVO FUNCIONARIO ---");
-        System.out.print("Nome: ");     novoFuncionario.nome = scanner.nextLine();
-        System.out.print("CPF: ");      novoFuncionario.cpf = scanner.nextLine();
-        System.out.print("Email: ");    novoFuncionario.email = scanner.nextLine();
-        System.out.print("Telefone: "); novoFuncionario.telefone = scanner.nextLine();
-        System.out.print("Senha: ");    novoFuncionario.senha = scanner.nextLine();
-        System.out.print("Cargo: ");    novoFuncionario.cargo = scanner.nextLine();
-        System.out.print("Setor: ");    novoFuncionario.setor = scanner.nextLine();
-        novoFuncionario.dataCadastro = LocalDateTime.now().format(formatoDataHora);
-
-        funcionarios[total] = novoFuncionario;
-        total++;
-        System.out.println("Funcionario cadastrado!");
+        System.out.print("Nome: ");
+        f.setNomeFuncionario(scanner.nextLine());
+        System.out.print("CPF: ");
+        f.setCpfFuncionario(scanner.nextLine());
+        System.out.print("Email: ");
+        f.setEmailFuncionario(scanner.nextLine());
+        System.out.print("Telefone: ");
+        f.setTelefoneFuncionario(scanner.nextLine());
+        System.out.print("Senha: ");
+        f.setSenhaHash(scanner.nextLine());
+        System.out.print("Cargo: ");
+        f.setCargoFuncionario(scanner.nextLine());
+        System.out.print("Salario: ");
+        f.setSalarioFuncionario(scanner.nextLine());
+        System.out.print("Certificado: ");
+        f.setCertificado(scanner.nextLine());
+        f.setDataCadastro(LocalDateTime.now().format(fmt));
+        funcionarios.add(f);
+        System.out.println("Funcionario cadastrado com sucesso! ID: " + f.getIdFuncionario());
     }
 
     public void listar() {
-        if (total == 0) {
-            System.out.println("Nenhum funcionario.");
+        if (funcionarios.isEmpty()) {
+            System.out.println("Nenhum funcionario cadastrado.");
             return;
         }
-
-        for (int i = 0; i < total; i++) {
-            System.out.println("[" + (i + 1) + "] " + funcionarios[i].nome
-                    + " | " + funcionarios[i].cargo
-                    + " | " + (funcionarios[i].ativo ? "ATIVO" : "INATIVO"));
+        System.out.println("\n--- FUNCIONARIOS ---");
+        for (Funcionario f : funcionarios) {
+            System.out.printf("[%s] %-20s | %-15s | %-10s | Cadastro: %s%n",
+                f.getIdFuncionario(), f.getNomeFuncionario(),
+                f.getCargoFuncionario(),
+                f.isAtivoFuncionario() ? "ATIVO" : "INATIVO",
+                f.getDataCadastro());
         }
     }
 
     public void alterarStatus(Scanner scanner, boolean ativar) {
         listar();
-        if (total == 0) return;
-
-        System.out.print("Numero: ");
-        int indiceFuncionario = MenuUtil.lerInt(scanner) - 1;
-
-        if (indiceFuncionario < 0 || indiceFuncionario >= total) {
-            System.out.println("Invalido!");
-            return;
-        }
-
-        funcionarios[indiceFuncionario].ativo = ativar;
-        System.out.println("Funcionario " + (ativar ? "ativado" : "desativado") + "!");
-        MenuUtil.pausar(scanner);
-    }
-
-    public boolean loginAdmin(Scanner scanner) {
-        System.out.print("\nEmail: ");
-        String emailDigitado = scanner.nextLine();
-        System.out.print("Senha: ");
-        String senhaDigitada = scanner.nextLine();
-
-        if (emailDigitado.equals("admin@prefeitura.gov") && senhaDigitada.equals("123456")) {
-            return true;
-        }
-
-        System.out.println("Credenciais invalidas!");
-        return false;
-    }
-
-    public boolean loginGestor(Scanner scanner) {
-        System.out.print("\nEmail: ");
-        String emailDigitado = scanner.nextLine();
-        System.out.print("Senha: ");
-        String senhaDigitada = scanner.nextLine();
-
-        for (int i = 0; i < total; i++) {
-            if (funcionarios[i].email.equals(emailDigitado)
-                    && funcionarios[i].senha.equals(senhaDigitada)
-                    && funcionarios[i].cargo.equalsIgnoreCase("gestor")
-                    && funcionarios[i].ativo) {
-                return true;
+        if (funcionarios.isEmpty()) return;
+        System.out.print("ID do funcionario: ");
+        String id = scanner.nextLine();
+        for (Funcionario f : funcionarios) {
+            if (f.getIdFuncionario().equals(id)) {
+                f.setAtivoFuncionario(ativar);
+                System.out.println("Funcionario " + (ativar ? "ativado" : "desativado") + "!");
+                MenuUtil.pausar(scanner);
+                return;
             }
         }
+        System.out.println("Funcionario nao encontrado!");
+    }
 
+    public Funcionario loginGestor(Scanner scanner) {
+        System.out.print("\nEmail: ");
+        String email = scanner.nextLine();
+        System.out.print("Senha: ");
+        String senha = scanner.nextLine();
+        for (Funcionario f : funcionarios) {
+            if (f.getEmailFuncionario().equals(email)
+                    && f.getSenhaHash().equals(senha)
+                    && f.getCargoFuncionario().equalsIgnoreCase("gestor")
+                    && f.isAtivoFuncionario()) {
+                System.out.println("Login realizado! Bem-vindo(a), " + f.getNomeFuncionario());
+                return f;
+            }
+        }
         System.out.println("Falha no login!");
-        return false;
+        return null;
     }
 }
