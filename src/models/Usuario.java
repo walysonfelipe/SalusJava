@@ -1,0 +1,36 @@
+package models;
+
+public abstract class Usuario {
+    protected int id;
+    protected String nome;
+    protected String email;
+    protected String senhaHash;
+    protected String telefone;
+    protected String dataCadastro;
+    protected String statusConta;
+
+    public Usuario() {
+        this.statusConta = "ATIVO";
+    }
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
+    public String getSenhaHash() { return senhaHash; }
+    public void setSenhaHash(String senhaHash) { this.senhaHash = senhaHash; }
+
+    public String getTelefone() { return telefone; }
+    public void setTelefone(String telefone) { this.telefone = telefone; }
+
+    public String getDataCadastro() { return dataCadastro; }
+    public void setDataCadastro(String dataCadastro) { this.dataCadastro = dataCadastro; }
+
+    public String getStatusConta() { return statusConta; }
+    public void setStatusConta(String statusConta) { this.statusConta = statusConta; }
+}

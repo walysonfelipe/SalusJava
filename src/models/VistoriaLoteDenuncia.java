@@ -4,7 +4,7 @@ public class VistoriaLoteDenuncia {
     private int idVistoriaLoteDenuncia;
     private int idVistoriaLote;
     private Denuncia denuncia;
-    private Funcionario funcionarioFiscal;
+    private Fiscal fiscal;
     private String constatadaProcedencia;
     private String fotoEvidencia;
     private String statusDenunciaPosVistoria;
@@ -25,8 +25,8 @@ public class VistoriaLoteDenuncia {
     public Denuncia getDenuncia() { return denuncia; }
     public void setDenuncia(Denuncia denuncia) { this.denuncia = denuncia; }
 
-    public Funcionario getFuncionarioFiscal() { return funcionarioFiscal; }
-    public void setFuncionarioFiscal(Funcionario funcionarioFiscal) { this.funcionarioFiscal = funcionarioFiscal; }
+    public Fiscal getFiscal() { return fiscal; }
+    public void setFiscal(Fiscal fiscal) { this.fiscal = fiscal; }
 
     public String getConstatadaProcedencia() { return constatadaProcedencia; }
     public void setConstatadaProcedencia(String constatadaProcedencia) { this.constatadaProcedencia = constatadaProcedencia; }
