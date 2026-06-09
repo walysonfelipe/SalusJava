@@ -14,12 +14,30 @@ public class Denuncia {
     private StatusDenuncia status;
     private String protocoloEletronico;
     private String dataEnvio;
-    private List<VistoriaLoteDenuncia> vistorias;
+    private Integer gestorResponsavelId;
+    private String gestorResponsavelNome;
+    private String observacaoVistoria;
+    private String dataHoraVistoria;
 
     public Denuncia() {
         this.status = StatusDenuncia.PENDENTE;
         this.midiaUrls = new ArrayList<>();
-        this.vistorias = new ArrayList<>();
+    }
+
+    public boolean validar() {
+        return enderecoCompleto != null && !enderecoCompleto.isBlank()
+                && descricao != null && !descricao.isBlank()
+                && cidadao != null;
+    }
+
+    public boolean isPendente() {
+        return status == StatusDenuncia.PENDENTE;
+    }
+
+    public void adicionarMidia(String url) {
+        if (url != null && !url.isBlank()) {
+            midiaUrls.add(url);
+        }
     }
 
     public int getIdDenuncia() { return idDenuncia; }
@@ -52,6 +70,15 @@ public class Denuncia {
     public String getDataEnvio() { return dataEnvio; }
     public void setDataEnvio(String dataEnvio) { this.dataEnvio = dataEnvio; }
 
-    public List<VistoriaLoteDenuncia> getVistorias() { return vistorias; }
-    public void setVistorias(List<VistoriaLoteDenuncia> vistorias) { this.vistorias = vistorias; }
+    public Integer getGestorResponsavelId() { return gestorResponsavelId; }
+    public void setGestorResponsavelId(Integer gestorResponsavelId) { this.gestorResponsavelId = gestorResponsavelId; }
+
+    public String getGestorResponsavelNome() { return gestorResponsavelNome; }
+    public void setGestorResponsavelNome(String gestorResponsavelNome) { this.gestorResponsavelNome = gestorResponsavelNome; }
+
+    public String getObservacaoVistoria() { return observacaoVistoria; }
+    public void setObservacaoVistoria(String observacaoVistoria) { this.observacaoVistoria = observacaoVistoria; }
+
+    public String getDataHoraVistoria() { return dataHoraVistoria; }
+    public void setDataHoraVistoria(String dataHoraVistoria) { this.dataHoraVistoria = dataHoraVistoria; }
 }

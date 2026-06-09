@@ -1,0 +1,4 @@
+id;nome;cpf;email;telefone;senhaHash;dataCadastro;statusConta
+1;Ana Paula Ferreira;529.982.247-25;ana.paula@email.com;11987654321;salus123;2026-06-09;ATIVO
+2;Carlos Eduardo Lima;295.379.955-93;carlos.lima@email.com;21976543210;dengue2026;2026-06-09;ATIVO
+3;Mariana Costa Silva;871.058.580-40;mariana.costa@email.com;31965432109;maria456;2026-06-09;ATIVO

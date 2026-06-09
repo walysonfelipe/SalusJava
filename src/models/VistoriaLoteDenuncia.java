@@ -8,11 +8,6 @@ public class VistoriaLoteDenuncia {
     private String constatadaProcedencia;
     private String fotoEvidencia;
     private String statusDenunciaPosVistoria;
-    private String tipoImovel;
-    private String moradores;
-    private String acessibilidade;
-    private String tipoReserv;
-    private String condicReserv;
 
     public VistoriaLoteDenuncia() {}
 
@@ -35,20 +30,5 @@ public class VistoriaLoteDenuncia {
     public void setFotoEvidencia(String fotoEvidencia) { this.fotoEvidencia = fotoEvidencia; }
 
     public String getStatusDenunciaPosVistoria() { return statusDenunciaPosVistoria; }
-    public void setStatusDenunciaPosVistoria(String statusDenunciaPosVistoria) { this.statusDenunciaPosVistoria = statusDenunciaPosVistoria; }
-
-    public String getTipoImovel() { return tipoImovel; }
-    public void setTipoImovel(String tipoImovel) { this.tipoImovel = tipoImovel; }
-
-    public String getMoradores() { return moradores; }
-    public void setMoradores(String moradores) { this.moradores = moradores; }
-
-    public String getAcessibilidade() { return acessibilidade; }
-    public void setAcessibilidade(String acessibilidade) { this.acessibilidade = acessibilidade; }
-
-    public String getTipoReserv() { return tipoReserv; }
-    public void setTipoReserv(String tipoReserv) { this.tipoReserv = tipoReserv; }
-
-    public String getCondicReserv() { return condicReserv; }
-    public void setCondicReserv(String condicReserv) { this.condicReserv = condicReserv; }
+    public void setStatusDenunciaPosVistoria(String s) { this.statusDenunciaPosVistoria = s; }
 }

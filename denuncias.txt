@@ -1,0 +1,4 @@
+idDenuncia;cidadaoId;enderecoCompleto;latitude;longitude;descricao;protocolo;dataEnvio;status;gestorId;gestorNome;observacao;dataHoraVistoria
+1;1;Rua das Flores, 123, Jardim Primavera, Sao Paulo - SP;-23.5505;-46.6333;Terreno abandonado com agua parada em pneus e recipientes expostos a chuva;PROT-2026-0001;09/06/2026 08:30;ATRIBUIDA;;;;
+2;2;Av. Brasil, 456, Centro, Rio de Janeiro - RJ;-22.9068;-43.1729;Caixa d agua sem tampa no quintal do vizinho com larvas visiveis;PROT-2026-0002;09/06/2026 10:15;ATRIBUIDA;10;Gestor Teste;;
+3;3;Rua Minas Gerais, 789, Bairro Industrial, Belo Horizonte - MG;-19.9167;-43.9345;Calha entupida com agua acumulada ha mais de uma semana;PROT-2026-0003;09/06/2026 14:00;FINALIZADA;10;Gestor Teste;Vistoria realizada. Calha limpa e dedetizacao efetuada.;09/06/2026 16:45

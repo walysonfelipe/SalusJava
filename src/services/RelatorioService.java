@@ -19,20 +19,14 @@ public class RelatorioService {
         this.sc = sc;
     }
 
-    public RelatorioEpidemiologico gerar(List<Denuncia> denuncias, List<VistoriaLote> vistorias,
+    public RelatorioEpidemiologico gerar(List<Denuncia> denuncias,
+                                         List<VistoriaLote> vistorias,
                                          Usuario geradoPor) {
-        System.out.println("\n=== GERAR RELATÓRIO EPIDEMIOLÓGICO ===");
-        System.out.print("Período (ex: 05/2026): ");
+        System.out.println("\n=== GERAR RELATORIO EPIDEMIOLOGICO ===");
+        System.out.print("Periodo (ex: 06/2026): ");
         String periodo = sc.nextLine().trim();
-        System.out.print("Região (ex: Zona Norte, Centro): ");
+        System.out.print("Regiao (ex: Zona Norte): ");
         String regiao = sc.nextLine().trim();
-
-        RelatorioEpidemiologico r = new RelatorioEpidemiologico();
-        r.setIdRelatorio(proximoId++);
-        r.setPeriodo(periodo);
-        r.setRegiao(regiao);
-        r.setGeradoPor(geradoPor);
-        r.setDataGeracao(LocalDate.now().toString());
 
         int totalDenuncias = denuncias.size();
         int finalizadas = 0;
@@ -48,6 +42,12 @@ public class RelatorioService {
             if (l.getDataRealizacao() != null) focosEliminados += l.getFocosEncontrados();
         }
 
+        RelatorioEpidemiologico r = new RelatorioEpidemiologico();
+        r.setIdRelatorio(proximoId++);
+        r.setPeriodo(periodo);
+        r.setRegiao(regiao);
+        r.setGeradoPor(geradoPor);
+        r.setDataGeracao(LocalDate.now().toString());
         r.setTotalDenuncias(totalDenuncias);
         r.setTotalVistorias(totalVistorias);
         r.setTotalFocosEncontrados(totalFocos);
@@ -60,28 +60,28 @@ public class RelatorioService {
     }
 
     public void listar() {
-        System.out.println("\n=== RELATÓRIOS GERADOS ===");
-        if (relatorios.isEmpty()) { System.out.println("Nenhum relatório gerado."); return; }
+        System.out.println("\n=== RELATORIOS GERADOS ===");
+        if (relatorios.isEmpty()) { System.out.println("Nenhum relatorio gerado."); return; }
         for (RelatorioEpidemiologico r : relatorios) {
-            System.out.printf("[%d] Período: %s | Região: %s | Gerado em: %s | Índice: %.2f%n",
+            System.out.printf("[%d] Periodo: %-10s | Regiao: %-20s | Gerado em: %s | Indice: %.2f%n",
                     r.getIdRelatorio(), r.getPeriodo(), r.getRegiao(),
                     r.getDataGeracao(), r.getIndiceInfestacao());
         }
     }
 
     private void exibir(RelatorioEpidemiologico r) {
-        System.out.println("\n========== RELATÓRIO EPIDEMIOLÓGICO ==========");
+        System.out.println("\n========== RELATORIO EPIDEMIOLOGICO ==========");
         System.out.println("ID           : " + r.getIdRelatorio());
-        System.out.println("Período      : " + r.getPeriodo());
-        System.out.println("Região       : " + r.getRegiao());
+        System.out.println("Periodo      : " + r.getPeriodo());
+        System.out.println("Regiao       : " + r.getRegiao());
         System.out.println("Gerado por   : " + (r.getGeradoPor() != null ? r.getGeradoPor().getNome() : "-"));
-        System.out.println("Data geração : " + r.getDataGeracao());
+        System.out.println("Data geracao : " + r.getDataGeracao());
         System.out.println("----------------------------------------------");
-        System.out.println("Total denúncias      : " + r.getTotalDenuncias());
+        System.out.println("Total denuncias      : " + r.getTotalDenuncias());
         System.out.println("Total vistorias      : " + r.getTotalVistorias());
         System.out.println("Focos encontrados    : " + r.getTotalFocosEncontrados());
         System.out.println("Focos eliminados     : " + r.getTotalFocosEliminados());
-        System.out.printf( "Índice de infestação : %.2f%n", r.getIndiceInfestacao());
+        System.out.printf( "Indice de infestacao : %.2f%n", r.getIndiceInfestacao());
         System.out.println("==============================================");
     }
 }

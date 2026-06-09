@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Scanner;
 
 public class AdminService {
-    private List<Admin> admins = new ArrayList<>();
-    private Scanner sc;
+    private final List<Admin> admins = new ArrayList<>();
+    private final Scanner sc;
 
     public AdminService(Scanner sc) {
         this.sc = sc;
@@ -24,11 +24,11 @@ public class AdminService {
         admins.add(a);
     }
 
-    public Admin login() {
+    public Admin loginAdmin() {
         System.out.println("\n=== LOGIN ADMINISTRADOR ===");
         System.out.print("E-mail: ");
         String email = sc.nextLine().trim();
-        System.out.print("Senha: ");
+        System.out.print("Senha : ");
         String senha = sc.nextLine().trim();
 
         for (Admin a : admins) {
@@ -37,15 +37,7 @@ public class AdminService {
                 return a;
             }
         }
-        System.out.println("Credenciais inválidas.");
+        System.out.println("Credenciais invalidas.");
         return null;
-    }
-
-    public void listar() {
-        System.out.println("\n=== ADMINISTRADORES ===");
-        for (Admin a : admins) {
-            System.out.printf("[%d] %s | E-mail: %s | Nível: %d%n",
-                    a.getId(), a.getNome(), a.getEmail(), a.getNivelAcesso());
-        }
     }
 }

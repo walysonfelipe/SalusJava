@@ -3,5 +3,25 @@ __________________
 GABRIEL CARDINALE,
 GABRIEL MARTINS,
 WALYSON FELIPE,
-Filipe Rattighieri,
+FILIPE RATTIGHIERI,
 EDUARDO XAVIER
+
+__________________
+LOGINS PADRÃO DO SISTEMA
+__________________
+
+ADMINISTRADOR
+  E-mail : admin@salus.gov.br
+  Senha  : admin123
+
+GESTOR (pré-cadastrado)
+  E-mail : gestor@salus.gov.br
+  Senha  : gestor123
+
+CIDADÃOS (gerados no cidadaos.txt)
+  ana.paula@email.com   | senha: salus123
+  carlos.lima@email.com | senha: dengue2026
+  mariana.costa@email.com | senha: maria456
+
+Obs: novos gestores e fiscais podem ser cadastrados
+pelo Administrador dentro do sistema.

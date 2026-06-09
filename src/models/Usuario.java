@@ -13,6 +13,18 @@ public abstract class Usuario {
         this.statusConta = "ATIVO";
     }
 
+    public boolean autenticar(String senhaInformada) {
+        return senhaInformada != null && senhaInformada.equals(this.senhaHash);
+    }
+
+    public boolean contaAtiva() {
+        return "ATIVO".equalsIgnoreCase(this.statusConta);
+    }
+
+    public boolean validarEmail() {
+        return email != null && email.contains("@") && email.contains(".");
+    }
+
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -33,4 +45,9 @@ public abstract class Usuario {
 
     public String getStatusConta() { return statusConta; }
     public void setStatusConta(String statusConta) { this.statusConta = statusConta; }
+
+    @Override
+    public String toString() {
+        return String.format("[%d] %s <%s> — %s", id, nome, email, statusConta);
+    }
 }

@@ -3,6 +3,12 @@ package services;
 import models.Cidadao;
 import models.Denuncia;
 import models.StatusDenuncia;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -46,40 +52,9 @@ public class DenunciaService {
         d.setDataEnvio(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
 
         denuncias.add(d);
+        cidadao.registrarDenuncia(d);
         System.out.println("Denúncia registrada! Protocolo: " + protocolo);
         return d;
-    }
-
-    public void listar() {
-        System.out.println("\n=== TODAS AS DENÚNCIAS ===");
-        if (denuncias.isEmpty()) { System.out.println("Nenhuma denúncia registrada."); return; }
-        for (Denuncia d : denuncias) {
-            exibirResumo(d);
-        }
-    }
-
-    public void listarPendentes() {
-        System.out.println("\n=== DENÚNCIAS PENDENTES ===");
-        boolean alguma = false;
-        for (Denuncia d : denuncias) {
-            if (d.getStatus() == StatusDenuncia.PENDENTE) {
-                exibirResumo(d);
-                alguma = true;
-            }
-        }
-        if (!alguma) System.out.println("Nenhuma denúncia pendente.");
-    }
-
-    public void listarPorCidadao(Cidadao cidadao) {
-        System.out.println("\n=== SUAS DENÚNCIAS ===");
-        boolean alguma = false;
-        for (Denuncia d : denuncias) {
-            if (d.getCidadao().getId() == cidadao.getId()) {
-                exibirResumo(d);
-                alguma = true;
-            }
-        }
-        if (!alguma) System.out.println("Você não possui denúncias registradas.");
     }
 
     public Denuncia buscarPorId(int id) {
@@ -96,34 +71,133 @@ public class DenunciaService {
         return null;
     }
 
-    public void alterarStatus(int idDenuncia, StatusDenuncia novoStatus) {
-        Denuncia d = buscarPorId(idDenuncia);
-        if (d == null) { System.out.println("Denúncia não encontrada."); return; }
-        d.setStatus(novoStatus);
-        System.out.println("Status da denúncia " + d.getProtocoloEletronico() + " atualizado para: " + novoStatus);
+    public void listar() {
+        System.out.println("\n=== TODAS AS DENUNCIAS ===");
+        if (denuncias.isEmpty()) { System.out.println("Nenhuma denuncia registrada."); return; }
+        for (Denuncia d : denuncias) exibirResumo(d);
+    }
+
+    public void listarPendentes() {
+        System.out.println("\n=== DENUNCIAS PENDENTES ===");
+        boolean alguma = false;
+        for (Denuncia d : denuncias) {
+            if (d.getStatus() == StatusDenuncia.PENDENTE) { exibirResumo(d); alguma = true; }
+        }
+        if (!alguma) System.out.println("Nenhuma denuncia pendente.");
+    }
+
+    public void listarPorCidadao(Cidadao cidadao) {
+        System.out.println("\n=== SUAS DENUNCIAS ===");
+        boolean alguma = false;
+        for (Denuncia d : denuncias) {
+            if (d.getCidadao() != null && d.getCidadao().getId() == cidadao.getId()) {
+                exibirResumo(d); alguma = true;
+            }
+        }
+        if (!alguma) System.out.println("Voce nao possui denuncias registradas.");
     }
 
     public void dashboard() {
-        System.out.println("\n========== DASHBOARD DE DENÚNCIAS ==========");
+        System.out.println("\n========== DASHBOARD DE DENUNCIAS ==========");
         int total = denuncias.size();
         int pendentes = 0, emAnalise = 0, atribuidas = 0, finalizadas = 0;
         for (Denuncia d : denuncias) {
             switch (d.getStatus()) {
-                case PENDENTE:    pendentes++;   break;
-                case EM_ANALISE:  emAnalise++;   break;
-                case ATRIBUIDA:   atribuidas++;  break;
-                case FINALIZADA:  finalizadas++; break;
+                case PENDENTE:   pendentes++;   break;
+                case EM_ANALISE: emAnalise++;   break;
+                case ATRIBUIDA:  atribuidas++;  break;
+                case FINALIZADA: finalizadas++; break;
             }
         }
-        System.out.println("Total de denúncias : " + total);
-        System.out.println("Pendentes          : " + pendentes);
-        System.out.println("Em análise         : " + emAnalise);
-        System.out.println("Atribuídas         : " + atribuidas);
-        System.out.println("Finalizadas        : " + finalizadas);
+        System.out.println("Total        : " + total);
+        System.out.println("Pendentes    : " + pendentes);
+        System.out.println("Em analise   : " + emAnalise);
+        System.out.println("Atribuidas   : " + atribuidas);
+        System.out.println("Finalizadas  : " + finalizadas);
         System.out.println("=============================================");
     }
 
+    private void exibirResumo(Denuncia d) {
+        String nome = d.getCidadao() != null ? d.getCidadao().getNome() : "?";
+        System.out.printf("[%d] %s | %-12s | %s | %s%n",
+                d.getIdDenuncia(), d.getProtocoloEletronico(), d.getStatus(),
+                nome, d.getEnderecoCompleto());
+    }
+
     public List<Denuncia> getDenuncias() { return denuncias; }
+
+    public void salvar(String arquivo) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(arquivo))) {
+            bw.write("idDenuncia;cidadaoId;enderecoCompleto;latitude;longitude;descricao;protocolo;dataEnvio;status;gestorId;gestorNome;observacao;dataHoraVistoria");
+            bw.newLine();
+            for (Denuncia d : denuncias) {
+                int cidadaoId = d.getCidadao() != null ? d.getCidadao().getId() : 0;
+                bw.write(d.getIdDenuncia()                          + ";" +
+                         cidadaoId                                  + ";" +
+                         esc(d.getEnderecoCompleto())               + ";" +
+                         d.getLatitude()                            + ";" +
+                         d.getLongitude()                           + ";" +
+                         esc(d.getDescricao())                      + ";" +
+                         esc(d.getProtocoloEletronico())            + ";" +
+                         esc(d.getDataEnvio())                      + ";" +
+                         d.getStatus()                              + ";" +
+                         (d.getGestorResponsavelId() != null ? d.getGestorResponsavelId() : "") + ";" +
+                         esc(d.getGestorResponsavelNome())          + ";" +
+                         esc(d.getObservacaoVistoria())             + ";" +
+                         esc(d.getDataHoraVistoria()));
+                bw.newLine();
+            }
+            System.out.println("Salvo: " + arquivo + " (" + denuncias.size() + " registro(s))");
+        } catch (IOException e) {
+            System.out.println("Erro ao salvar denuncias: " + e.getMessage());
+        }
+    }
+
+    public List<Denuncia> carregarDoArquivo(String arquivo, List<Cidadao> cidadaosLidos) {
+        List<Denuncia> lista = new ArrayList<>();
+        File f = new File(arquivo);
+        if (!f.exists()) return lista;
+        try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+            br.readLine(); // cabecalho
+            String linha;
+            while ((linha = br.readLine()) != null) {
+                if (linha.isBlank()) continue;
+                String[] v = linha.split(";", -1);
+                if (v.length < 9) continue;
+                Denuncia d = new Denuncia();
+                d.setIdDenuncia(Integer.parseInt(v[0].trim()));
+                int cidadaoId = Integer.parseInt(v[1].trim());
+                for (Cidadao c : cidadaosLidos) {
+                    if (c.getId() == cidadaoId) { d.setCidadao(c); break; }
+                }
+                d.setEnderecoCompleto(unesc(v[2]));
+                d.setLatitude(Double.parseDouble(v[3].trim()));
+                d.setLongitude(Double.parseDouble(v[4].trim()));
+                d.setDescricao(unesc(v[5]));
+                d.setProtocoloEletronico(unesc(v[6]));
+                d.setDataEnvio(unesc(v[7]));
+                d.setStatus(StatusDenuncia.valueOf(v[8].trim()));
+                if (v.length >= 13) {
+                    String gestorIdStr = v[9].trim();
+                    if (!gestorIdStr.isEmpty()) d.setGestorResponsavelId(Integer.parseInt(gestorIdStr));
+                    String gestorNome = unesc(v[10]);
+                    d.setGestorResponsavelNome(gestorNome.isEmpty() ? null : gestorNome);
+                    String obs = unesc(v[11]);
+                    d.setObservacaoVistoria(obs.isEmpty() ? null : obs);
+                    String dataVistoria = unesc(v[12]);
+                    d.setDataHoraVistoria(dataVistoria.isEmpty() ? null : dataVistoria);
+                }
+                lista.add(d);
+            }
+        } catch (IOException e) {
+            System.out.println("Erro ao ler denuncias: " + e.getMessage());
+        }
+        this.denuncias = lista;
+        if (!lista.isEmpty()) {
+            this.proximoId = lista.get(lista.size() - 1).getIdDenuncia() + 1;
+        }
+        return lista;
+    }
 
     public List<Denuncia> getDenunciasPendentes() {
         List<Denuncia> pendentes = new ArrayList<>();
@@ -133,10 +207,20 @@ public class DenunciaService {
         return pendentes;
     }
 
-    private void exibirResumo(Denuncia d) {
-        System.out.printf("[%d] Protocolo: %s | Status: %-12s | Endereço: %s | Data: %s%n",
-                d.getIdDenuncia(), d.getProtocoloEletronico(), d.getStatus(),
-                d.getEnderecoCompleto(), d.getDataEnvio());
+    public List<Denuncia> getDenunciasPorGestor(int gestorId) {
+        List<Denuncia> resultado = new ArrayList<>();
+        for (Denuncia d : denuncias) {
+            if (d.getGestorResponsavelId() != null && d.getGestorResponsavelId() == gestorId) resultado.add(d);
+        }
+        return resultado;
+    }
+
+    private static String esc(String s) {
+        return s == null ? "" : s.replace(";", "{SC}").replace("\n", " ").replace("\r", "");
+    }
+
+    private static String unesc(String s) {
+        return s == null ? "" : s.trim().replace("{SC}", ";");
     }
 
     private String gerarProtocolo(int id) {

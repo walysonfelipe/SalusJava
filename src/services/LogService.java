@@ -26,10 +26,9 @@ public class LogService {
         System.out.println("\n=== LOG DO SISTEMA ===");
         if (logs.isEmpty()) { System.out.println("Nenhum registro encontrado."); return; }
         for (Logs l : logs) {
-            String nomeUsuario = l.getUsuario() != null ? l.getUsuario().getNome() : "Sistema";
-            System.out.printf("[%d] %s | Usuário: %-20s | Ação: %-30s | IP: %s%n",
-                    l.getIdLog(), l.getTimestamp(), nomeUsuario,
-                    l.getAcaoRealizada(), l.getIpOrigem());
+            String nome = l.getUsuario() != null ? l.getUsuario().getNome() : "Sistema";
+            System.out.printf("[%d] %s | Usuario: %-22s | Acao: %s%n",
+                    l.getIdLog(), l.getTimestamp(), nome, l.getAcaoRealizada());
         }
     }
 }

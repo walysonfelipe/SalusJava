@@ -1,6 +1,13 @@
 package services;
 
 import models.Cidadao;
+import util.ValidadorBR;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +31,9 @@ public class CidadaoService {
         System.out.print("CPF (somente números): ");
         String cpf = sc.nextLine().trim();
 
+        String erroCpf = ValidadorBR.mensagemCpf(cpf);
+        if (erroCpf != null) { System.out.println(erroCpf); return null; }
+
         if (buscarPorCpf(cpf) != null) {
             System.out.println("CPF já cadastrado.");
             return null;
@@ -32,6 +42,9 @@ public class CidadaoService {
         System.out.print("E-mail: ");
         String email = sc.nextLine().trim();
 
+        String erroEmail = ValidadorBR.mensagemEmail(email);
+        if (erroEmail != null) { System.out.println(erroEmail); return null; }
+
         if (buscarPorEmail(email) != null) {
             System.out.println("E-mail já cadastrado.");
             return null;
@@ -39,6 +52,9 @@ public class CidadaoService {
 
         System.out.print("Telefone: ");
         String telefone = sc.nextLine().trim();
+
+        String erroTelefone = ValidadorBR.mensagemTelefone(telefone);
+        if (erroTelefone != null) { System.out.println(erroTelefone); return null; }
 
         System.out.print("Senha: ");
         String senha = sc.nextLine().trim();
@@ -95,6 +111,70 @@ public class CidadaoService {
             if (c.getId() == id) return c;
         }
         return null;
+    }
+
+    public List<Cidadao> getCidadaos() { return cidadaos; }
+
+    public void salvar(String arquivo) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(arquivo))) {
+            bw.write("id;nome;cpf;email;telefone;senhaHash;dataCadastro;statusConta");
+            bw.newLine();
+            for (Cidadao c : cidadaos) {
+                bw.write(c.getId()                  + ";" +
+                         esc(c.getNome())            + ";" +
+                         esc(c.getCpf())             + ";" +
+                         esc(c.getEmail())           + ";" +
+                         esc(c.getTelefone())        + ";" +
+                         esc(c.getSenhaHash())       + ";" +
+                         esc(c.getDataCadastro())    + ";" +
+                         esc(c.getStatusConta()));
+                bw.newLine();
+            }
+            System.out.println("Salvo: " + arquivo + " (" + cidadaos.size() + " registro(s))");
+        } catch (IOException e) {
+            System.out.println("Erro ao salvar cidadaos: " + e.getMessage());
+        }
+    }
+
+    public List<Cidadao> carregarDoArquivo(String arquivo) {
+        List<Cidadao> lista = new ArrayList<>();
+        File f = new File(arquivo);
+        if (!f.exists()) return lista;
+        try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+            br.readLine(); // cabecalho
+            String linha;
+            while ((linha = br.readLine()) != null) {
+                if (linha.isBlank()) continue;
+                String[] v = linha.split(";", -1);
+                if (v.length < 8) continue;
+                Cidadao c = new Cidadao();
+                c.setId(Integer.parseInt(v[0].trim()));
+                c.setNome(unesc(v[1]));
+                c.setCpf(unesc(v[2]));
+                c.setEmail(unesc(v[3]));
+                c.setTelefone(unesc(v[4]));
+                c.setSenhaHash(unesc(v[5]));
+                c.setDataCadastro(unesc(v[6]));
+                c.setStatusConta(unesc(v[7]));
+                lista.add(c);
+            }
+        } catch (IOException e) {
+            System.out.println("Erro ao ler cidadaos: " + e.getMessage());
+        }
+        // atualiza a lista interna para que buscarPorId e login funcionem
+        this.cidadaos = lista;
+        if (!lista.isEmpty()) {
+            this.proximoId = lista.get(lista.size() - 1).getId() + 1;
+        }
+        return lista;
+    }
+
+    private static String esc(String s) {
+        return s == null ? "" : s.replace(";", "{SC}").replace("\n", " ").replace("\r", "");
+    }
+
+    private static String unesc(String s) {
+        return s == null ? "" : s.trim().replace("{SC}", ";");
     }
 
     private Cidadao buscarPorCpf(String cpf) {
