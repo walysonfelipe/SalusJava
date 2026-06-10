@@ -1,22 +1,44 @@
-import models.*;
+import menus.*;
+import models.Cidadao;
+import models.Denuncia;
 import services.*;
 
 import java.util.List;
 import java.util.Scanner;
 
-public class SistemaSalus {
+public class SistemaSalus extends MenuBase {
 
     private static final String ARQUIVO_CIDADAOS  = "cidadaos.txt";
     private static final String ARQUIVO_DENUNCIAS = "denuncias.txt";
 
-    private final Scanner            scanner         = new Scanner(System.in);
-    private final CidadaoService     cidadaoService  = new CidadaoService(scanner);
-    private final DenunciaService    denunciaService = new DenunciaService(scanner);
-    private final AdminService       adminService    = new AdminService(scanner);
-    private final FuncionarioService funcService     = new FuncionarioService(scanner);
-    private final VistoriaService    vistoriaService = new VistoriaService(scanner);
-    private final RelatorioService   relatorioService= new RelatorioService(scanner);
-    private final LogService         logService      = new LogService();
+    private final CidadaoService     cidadaoService;
+    private final DenunciaService    denunciaService;
+    private final AdminService       adminService;
+    private final FuncionarioService funcService;
+    private final VistoriaService    vistoriaService;
+    private final RelatorioService   relatorioService;
+    private final LogService         logService;
+
+    private final MenuCidadao menuCidadao;
+    private final MenuGestor  menuGestor;
+    private final MenuFiscal  menuFiscal;
+    private final MenuAdmin   menuAdmin;
+
+    public SistemaSalus() {
+        super(new Scanner(System.in));
+        cidadaoService   = new CidadaoService(sc);
+        denunciaService  = new DenunciaService(sc);
+        adminService     = new AdminService(sc);
+        funcService      = new FuncionarioService(sc);
+        vistoriaService  = new VistoriaService(sc);
+        relatorioService = new RelatorioService(sc);
+        logService       = new LogService();
+
+        menuCidadao = new MenuCidadao(sc, cidadaoService, denunciaService, logService);
+        menuGestor  = new MenuGestor(sc, funcService, denunciaService, vistoriaService, relatorioService, logService);
+        menuFiscal  = new MenuFiscal(sc, funcService, vistoriaService, logService);
+        menuAdmin   = new MenuAdmin(sc, adminService, cidadaoService, funcService, denunciaService, logService);
+    }
 
     public static void main(String[] args) {
         new SistemaSalus().executar();
@@ -49,291 +71,26 @@ public class SistemaSalus {
             opcao = lerInt();
 
             switch (opcao) {
-                case 1: opcaoCadastrarCidadao(); aguardarEnter(); break;
-                case 2: opcaoCadastrarDenuncia(); aguardarEnter(); break;
-                case 3: opcaoSalvar();            aguardarEnter(); break;
-                case 4: opcaoLerExibir();         aguardarEnter(); break;
-                case 5: menuPreCidadao();         aguardarEnter(); break;
-                case 6: acessoGestor();           aguardarEnter(); break;
-                case 7: acessoFiscal();           aguardarEnter(); break;
-                case 8: acessoAdmin();            aguardarEnter(); break;
+                case 1: cadastrarCidadao();  aguardarEnter(); break;
+                case 2: cadastrarDenuncia(); aguardarEnter(); break;
+                case 3: salvar();            aguardarEnter(); break;
+                case 4: lerExibir();         aguardarEnter(); break;
+                case 5: menuCidadao.abrir(); aguardarEnter(); break;
+                case 6: menuGestor.abrir();  aguardarEnter(); break;
+                case 7: menuFiscal.abrir();  aguardarEnter(); break;
+                case 8: menuAdmin.abrir();   aguardarEnter(); break;
                 case 0: System.out.println("Sistema encerrado. Ate logo!"); break;
                 default: System.out.println("Opcao invalida.");
             }
         } while (opcao != 0);
     }
 
-    // ============================================================ CIDADAO
-    private void menuPreCidadao() {
-        System.out.println("\n=== AREA DO CIDADAO ===");
-        System.out.println("1. Cadastrar");
-        System.out.println("2. Login");
-        System.out.println("0. Voltar");
-        System.out.print("Opcao: ");
-
-        switch (lerInt()) {
-            case 1:
-                Cidadao novo = cidadaoService.cadastrar();
-                if (novo != null) {
-                    logService.registrar(novo, "CADASTRO_CIDADAO", null);
-                    menuCidadao(novo);
-                }
-                break;
-            case 2:
-                Cidadao logado = cidadaoService.login();
-                if (logado != null) {
-                    logService.registrar(logado, "LOGIN_CIDADAO", null);
-                    menuCidadao(logado);
-                }
-                break;
-            case 0: break;
-            default: System.out.println("Opcao invalida.");
-        }
-    }
-
-    private void menuCidadao(Cidadao cidadao) {
-        int opcao;
-        do {
-            System.out.println("\n=== MENU CIDADAO — " + cidadao.getNome() + " ===");
-            System.out.println("1. Registrar denuncia");
-            System.out.println("2. Minhas denuncias");
-            System.out.println("3. Consultar por protocolo");
-            System.out.println("0. Sair");
-            System.out.print("Opcao: ");
-            opcao = lerInt();
-
-            switch (opcao) {
-                case 1:
-                    Denuncia d = denunciaService.cadastrar(cidadao);
-                    if (d != null) logService.registrar(cidadao, "CADASTRO_DENUNCIA:" + d.getProtocoloEletronico(), null);
-                    aguardarEnter();
-                    break;
-                case 2:
-                    denunciaService.listarPorCidadao(cidadao);
-                    aguardarEnter();
-                    break;
-                case 3:
-                    consultarProtocolo();
-                    aguardarEnter();
-                    break;
-                case 0:
-                    logService.registrar(cidadao, "LOGOUT_CIDADAO", null);
-                    System.out.println("Ate logo, " + cidadao.getNome() + "!");
-                    break;
-                default: System.out.println("Opcao invalida.");
-            }
-        } while (opcao != 0);
-    }
-
-    // ============================================================ GESTOR
-    private void acessoGestor() {
-        Gestor gestor = funcService.loginGestor();
-        if (gestor == null) return;
-        logService.registrar(gestor, "LOGIN_GESTOR", null);
-        menuGestor(gestor);
-    }
-
-    private void menuGestor(Gestor gestor) {
-        int opcao;
-        do {
-            System.out.println("\n=== MENU GESTOR — " + gestor.getNome() + " ===");
-            System.out.println("1.  Listar denuncias pendentes");
-            System.out.println("2.  Criar lote de vistoria");
-            System.out.println("3.  Atribuir fiscal a lote");
-            System.out.println("4.  Listar lotes de vistoria");
-            System.out.println("5.  Dashboard de denuncias");
-            System.out.println("6.  Gerar relatorio epidemiologico");
-            System.out.println("7.  Listar relatorios");
-            System.out.println("8.  Cadastrar fiscal");
-            System.out.println("9.  Listar fiscais");
-            System.out.println("0.  Sair");
-            System.out.print("Opcao: ");
-            opcao = lerInt();
-
-            switch (opcao) {
-                case 1:
-                    denunciaService.listarPendentes();
-                    aguardarEnter();
-                    break;
-                case 2:
-                    vistoriaService.criarVistoria(gestor, denunciaService.getDenunciasPendentes());
-                    logService.registrar(gestor, "CRIACAO_LOTE_VISTORIA", null);
-                    aguardarEnter();
-                    break;
-                case 3:
-                    atribuirFiscalALote(gestor);
-                    aguardarEnter();
-                    break;
-                case 4:
-                    vistoriaService.listarLotes();
-                    aguardarEnter();
-                    break;
-                case 5:
-                    denunciaService.dashboard();
-                    aguardarEnter();
-                    break;
-                case 6:
-                    relatorioService.gerar(denunciaService.getDenuncias(), vistoriaService.getLotes(), gestor);
-                    logService.registrar(gestor, "GERACAO_RELATORIO", null);
-                    aguardarEnter();
-                    break;
-                case 7:
-                    relatorioService.listar();
-                    aguardarEnter();
-                    break;
-                case 8:
-                    funcService.adicionarFiscal();
-                    logService.registrar(gestor, "CADASTRO_FISCAL", null);
-                    aguardarEnter();
-                    break;
-                case 9:
-                    funcService.listarFiscais();
-                    aguardarEnter();
-                    break;
-                case 0:
-                    logService.registrar(gestor, "LOGOUT_GESTOR", null);
-                    System.out.println("Saindo da area do gestor...");
-                    break;
-                default: System.out.println("Opcao invalida.");
-            }
-        } while (opcao != 0);
-    }
-
-    private void atribuirFiscalALote(Gestor gestor) {
-        funcService.listarFiscais();
-        vistoriaService.listarLotes();
-
-        if (funcService.getFiscais().isEmpty()) {
-            System.out.println("Nenhum fiscal cadastrado. Cadastre um fiscal primeiro (opcao 8).");
-            return;
-        }
-
-        System.out.print("ID do lote: ");
-        int idLote = lerInt();
-        System.out.print("ID do fiscal: ");
-        int idFiscal = lerInt();
-
-        Fiscal fiscal = funcService.buscarFiscalPorId(idFiscal);
-        if (fiscal != null) {
-            vistoriaService.vincularFiscal(idLote, fiscal);
-            logService.registrar(gestor, "ATRIBUICAO_FISCAL:LOTE-" + idLote, null);
-        } else {
-            System.out.println("Fiscal nao encontrado.");
-        }
-    }
-
-    // ============================================================ FISCAL
-    private void acessoFiscal() {
-        Fiscal fiscal = funcService.loginFiscal();
-        if (fiscal == null) return;
-        logService.registrar(fiscal, "LOGIN_FISCAL", null);
-        menuFiscal(fiscal);
-    }
-
-    private void menuFiscal(Fiscal fiscal) {
-        int opcao;
-        do {
-            System.out.println("\n=== MENU FISCAL — " + fiscal.getNome() + " ===");
-            System.out.println("1. Registrar visita");
-            System.out.println("2. Ver lotes atribuidos a mim");
-            System.out.println("0. Sair");
-            System.out.print("Opcao: ");
-            opcao = lerInt();
-
-            switch (opcao) {
-                case 1:
-                    vistoriaService.registrarVisita(fiscal);
-                    logService.registrar(fiscal, "REGISTRO_VISITA", null);
-                    aguardarEnter();
-                    break;
-                case 2:
-                    vistoriaService.listarLotes();
-                    aguardarEnter();
-                    break;
-                case 0:
-                    logService.registrar(fiscal, "LOGOUT_FISCAL", null);
-                    System.out.println("Saindo da area do fiscal...");
-                    break;
-                default: System.out.println("Opcao invalida.");
-            }
-        } while (opcao != 0);
-    }
-
-    // ============================================================ ADMIN
-    private void acessoAdmin() {
-        Admin admin = adminService.loginAdmin();
-        if (admin == null) return;
-        logService.registrar(admin, "LOGIN_ADMIN", null);
-        menuAdmin(admin);
-    }
-
-    private void menuAdmin(Admin admin) {
-        int opcao;
-        do {
-            System.out.println("\n=== MENU ADMINISTRADOR — " + admin.getNome() + " ===");
-            System.out.println("1. Listar cidadaos");
-            System.out.println("2. Cadastrar gestor");
-            System.out.println("3. Listar gestores");
-            System.out.println("4. Listar fiscais");
-            System.out.println("5. Alterar status de funcionario");
-            System.out.println("6. Ver logs do sistema");
-            System.out.println("7. Dashboard de denuncias");
-            System.out.println("8. Listar todas as denuncias");
-            System.out.println("0. Sair");
-            System.out.print("Opcao: ");
-            opcao = lerInt();
-
-            switch (opcao) {
-                case 1:
-                    cidadaoService.listar();
-                    aguardarEnter();
-                    break;
-                case 2:
-                    funcService.adicionarGestor();
-                    logService.registrar(admin, "CADASTRO_GESTOR", null);
-                    aguardarEnter();
-                    break;
-                case 3:
-                    funcService.listarGestores();
-                    aguardarEnter();
-                    break;
-                case 4:
-                    funcService.listarFiscais();
-                    aguardarEnter();
-                    break;
-                case 5:
-                    funcService.alterarStatus();
-                    logService.registrar(admin, "ALTERACAO_STATUS_FUNCIONARIO", null);
-                    aguardarEnter();
-                    break;
-                case 6:
-                    logService.listar();
-                    aguardarEnter();
-                    break;
-                case 7:
-                    denunciaService.dashboard();
-                    aguardarEnter();
-                    break;
-                case 8:
-                    denunciaService.listar();
-                    aguardarEnter();
-                    break;
-                case 0:
-                    logService.registrar(admin, "LOGOUT_ADMIN", null);
-                    System.out.println("Saindo da area do administrador...");
-                    break;
-                default: System.out.println("Opcao invalida.");
-            }
-        } while (opcao != 0);
-    }
-
-    // ============================================================ CADASTRO DIRETO
-    private void opcaoCadastrarCidadao() {
+    private void cadastrarCidadao() {
         Cidadao c = cidadaoService.cadastrar();
         if (c != null) logService.registrar(c, "CADASTRO_CIDADAO", null);
     }
 
-    private void opcaoCadastrarDenuncia() {
+    private void cadastrarDenuncia() {
         List<Cidadao> lista = cidadaoService.getCidadaos();
         if (lista.isEmpty()) {
             System.out.println("Nenhum cidadao cadastrado. Use a opcao 1 primeiro.");
@@ -351,14 +108,13 @@ public class SistemaSalus {
         if (d != null) logService.registrar(cidadao, "CADASTRO_DENUNCIA:" + d.getProtocoloEletronico(), null);
     }
 
-    // ============================================================ ARQUIVO
-    private void opcaoSalvar() {
+    private void salvar() {
         System.out.println("\n=== SALVAR DADOS EM ARQUIVO ===");
         cidadaoService.salvar(ARQUIVO_CIDADAOS);
         denunciaService.salvar(ARQUIVO_DENUNCIAS);
     }
 
-    private void opcaoLerExibir() {
+    private void lerExibir() {
         System.out.println("\n=== LER ARQUIVO E EXIBIR EM TELA ===");
         List<Cidadao>  cidadaosLidos  = cidadaoService.carregarDoArquivo(ARQUIVO_CIDADAOS);
         List<Denuncia> denunciasLidas = denunciaService.carregarDoArquivo(ARQUIVO_DENUNCIAS, cidadaosLidos);
@@ -366,31 +122,6 @@ public class SistemaSalus {
         exibirDenuncias(denunciasLidas);
     }
 
-    private void consultarProtocolo() {
-        System.out.print("\nInforme o numero do protocolo: ");
-        String protocolo = scanner.nextLine().trim();
-
-        Denuncia d = denunciaService.buscarPorProtocolo(protocolo);
-        if (d == null) { System.out.println("Protocolo nao encontrado."); return; }
-
-        String cidadao = d.getCidadao() != null ? d.getCidadao().getNome() : "Desconhecido";
-        System.out.println("\n========== DENUNCIA ==========");
-        System.out.println("Protocolo : " + d.getProtocoloEletronico());
-        System.out.println("Status    : " + d.getStatus());
-        System.out.println("Cidadao   : " + cidadao);
-        System.out.println("Endereco  : " + d.getEnderecoCompleto());
-        System.out.println("Descricao : " + d.getDescricao());
-        System.out.println("Data envio: " + d.getDataEnvio());
-        System.out.println("Latitude  : " + d.getLatitude());
-        System.out.println("Longitude : " + d.getLongitude());
-        if (d.getGestorResponsavelNome() != null)
-            System.out.println("Gestor    : " + d.getGestorResponsavelNome());
-        if (d.getObservacaoVistoria() != null)
-            System.out.println("Obs       : " + d.getObservacaoVistoria());
-        System.out.println("==============================");
-    }
-
-    // ============================================================ EXIBICAO
     private void exibirCidadaos(List<Cidadao> lista) {
         System.out.println("\n--- CIDADAOS (" + lista.size() + " registro(s)) ---");
         if (lista.isEmpty()) { System.out.println("Nenhum registro."); return; }
@@ -417,19 +148,6 @@ public class SistemaSalus {
             if (d.getObservacaoVistoria() != null)
                 System.out.println("     Obs     : " + d.getObservacaoVistoria());
             System.out.println();
-        }
-    }
-
-    // ============================================================ UTILITARIOS
-    private void aguardarEnter() {
-        System.out.print("\nPressione ENTER para voltar ao menu...");
-        scanner.nextLine();
-    }
-
-    private int lerInt() {
-        while (true) {
-            try { return Integer.parseInt(scanner.nextLine().trim()); }
-            catch (NumberFormatException e) { System.out.print("Digite um numero valido: "); }
         }
     }
 }
