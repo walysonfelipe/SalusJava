@@ -1,13 +1,13 @@
 package models;
 
 public abstract class Usuario {
-    protected int id;
-    protected String nome;
-    protected String email;
-    protected String senhaHash;
-    protected String telefone;
-    protected String dataCadastro;
-    protected String statusConta;
+    private int id;
+    private String nome;
+    private String email;
+    private String senhaHash;
+    private String telefone;
+    private String dataCadastro;
+    private String statusConta;
 
     public Usuario() {
         this.statusConta = "ATIVO";
