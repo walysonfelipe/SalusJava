@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Scanner;
 
 public class CidadaoService {
+    private static final String ARQUIVO = "cidadaos.txt";
+
     private List<Cidadao> cidadaos = new ArrayList<>();
     private Scanner sc;
     private int proximoId = 1;
@@ -115,8 +117,8 @@ public class CidadaoService {
 
     public List<Cidadao> getCidadaos() { return cidadaos; }
 
-    public void salvar(String arquivo) {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(arquivo))) {
+    public void salvar() {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(ARQUIVO))) {
             bw.write("id;nome;cpf;email;telefone;senhaHash;dataCadastro;statusConta");
             bw.newLine();
             for (Cidadao c : cidadaos) {
@@ -130,15 +132,15 @@ public class CidadaoService {
                          esc(c.getStatusConta()));
                 bw.newLine();
             }
-            System.out.println("Salvo: " + arquivo + " (" + cidadaos.size() + " registro(s))");
+            System.out.println("Salvo: " + ARQUIVO + " (" + cidadaos.size() + " registro(s))");
         } catch (IOException e) {
             System.out.println("Erro ao salvar cidadaos: " + e.getMessage());
         }
     }
 
-    public List<Cidadao> carregarDoArquivo(String arquivo) {
+    public List<Cidadao> carregarDoArquivo() {
         List<Cidadao> lista = new ArrayList<>();
-        File f = new File(arquivo);
+        File f = new File(ARQUIVO);
         if (!f.exists()) return lista;
         try (BufferedReader br = new BufferedReader(new FileReader(f))) {
             br.readLine(); // cabecalho
@@ -159,7 +161,7 @@ public class CidadaoService {
                 lista.add(c);
             }
         } catch (IOException e) {
-            System.out.println("Erro ao ler cidadaos: " + e.getMessage());
+            System.out.println("Erro ao carregar cidadaos: " + e.getMessage());
         }
         // atualiza a lista interna para que buscarPorId e login funcionem
         this.cidadaos = lista;

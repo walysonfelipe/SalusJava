@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Scanner;
 
 public class DenunciaService {
+    private static final String ARQUIVO = "denuncias.txt";
+
     private List<Denuncia> denuncias = new ArrayList<>();
     private Scanner sc;
     private int proximoId = 1;
@@ -126,8 +128,8 @@ public class DenunciaService {
 
     public List<Denuncia> getDenuncias() { return denuncias; }
 
-    public void salvar(String arquivo) {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(arquivo))) {
+    public void salvar() {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(ARQUIVO))) {
             bw.write("idDenuncia;cidadaoId;enderecoCompleto;latitude;longitude;descricao;protocolo;dataEnvio;status;gestorId;gestorNome;observacao;dataHoraVistoria");
             bw.newLine();
             for (Denuncia d : denuncias) {
@@ -147,15 +149,15 @@ public class DenunciaService {
                          esc(d.getDataHoraVistoria()));
                 bw.newLine();
             }
-            System.out.println("Salvo: " + arquivo + " (" + denuncias.size() + " registro(s))");
+            System.out.println("Salvo: " + ARQUIVO + " (" + denuncias.size() + " registro(s))");
         } catch (IOException e) {
             System.out.println("Erro ao salvar denuncias: " + e.getMessage());
         }
     }
 
-    public List<Denuncia> carregarDoArquivo(String arquivo, List<Cidadao> cidadaosLidos) {
+    public List<Denuncia> carregarDoArquivo(List<Cidadao> cidadaosLidos) {
         List<Denuncia> lista = new ArrayList<>();
-        File f = new File(arquivo);
+        File f = new File(ARQUIVO);
         if (!f.exists()) return lista;
         try (BufferedReader br = new BufferedReader(new FileReader(f))) {
             br.readLine(); // cabecalho
@@ -190,7 +192,7 @@ public class DenunciaService {
                 lista.add(d);
             }
         } catch (IOException e) {
-            System.out.println("Erro ao ler denuncias: " + e.getMessage());
+            System.out.println("Erro ao carregar denuncias: " + e.getMessage());
         }
         this.denuncias = lista;
         if (!lista.isEmpty()) {
